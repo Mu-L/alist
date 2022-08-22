@@ -3,6 +3,7 @@ package base
 import (
 	"errors"
 	"io"
+	"net/http"
 )
 
 var (
@@ -21,6 +22,7 @@ const (
 	TypeSelect = "select"
 	TypeBool   = "bool"
 	TypeNumber = "number"
+	TypeText   = "text"
 )
 
 const (
@@ -48,4 +50,6 @@ type Link struct {
 	Headers  []Header `json:"headers"`
 	Data     io.ReadCloser
 	FilePath string `json:"path"` // for native
+	Status   int
+	Header   http.Header
 }

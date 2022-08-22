@@ -60,6 +60,19 @@ type appSessionResp struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type FamilyInfoListResp struct {
+	FamilyInfoResp []FamilyInfoResp `json:"familyInfoResp"`
+}
+type FamilyInfoResp struct {
+	Count      int    `json:"count"`
+	CreateTime string `json:"createTime"`
+	FamilyID   int    `json:"familyId"`
+	RemarkName string `json:"remarkName"`
+	Type       int    `json:"type"`
+	UseFlag    int    `json:"useFlag"`
+	UserRole   int    `json:"userRole"`
+}
+
 /*文件部分*/
 // 文件
 type Cloud189File struct {
@@ -124,6 +137,7 @@ type BatchTaskInfo struct {
 	//SrcParentId string `json:"srcParentId"`
 }
 
+/*
 type CreateUploadFileResult struct {
 	// UploadFileId 上传文件请求ID
 	UploadFileId int64 `json:"uploadFileId"`
@@ -144,8 +158,8 @@ type UploadFileStatusResult struct {
 	FileCommitUrl  string `json:"fileCommitUrl"`
 	FileDataExists int    `json:"fileDataExists"`
 }
+*/
 
-/*
 type InitMultiUploadResp struct {
 	//Code string `json:"code"`
 	Data struct {
@@ -164,4 +178,3 @@ type Part struct {
 	RequestURL    string `json:"requestURL"`
 	RequestHeader string `json:"requestHeader"`
 }
-*/

@@ -16,7 +16,6 @@ import (
 	"github.com/Xhofe/alist/utils"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
-	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +34,7 @@ func GetState(account *model.Account) *State {
 		SetHeaders(map[string]string{
 			"Accept":     "application/json;charset=UTF-8",
 			"User-Agent": base.UserAgent,
-		}),
+		}).SetTimeout(base.DefaultTimeout),
 	}
 	userStateCache.States[account.Username] = state
 	return state
@@ -110,7 +109,7 @@ func (s *State) login(account *model.Account) error {
 	if err != nil {
 		return err
 	}
-	toUrl := jsoniter.Get(res.Body(), "toUrl").ToString()
+	toUrl := utils.Json.Get(res.Body(), "toUrl").ToString()
 	if toUrl == "" {
 		log.Error(res.String())
 		return fmt.Errorf(res.String())
@@ -179,10 +178,10 @@ func (s *State) getLoginParam() (*LoginParam, error) {
 		if err != nil {
 			return nil, err
 		}
-		if jsoniter.Get(vRes.Body(), "status").ToInt() != 200 {
-			return nil, errors.New("ocr error:" + jsoniter.Get(vRes.Body(), "msg").ToString())
+		if utils.Json.Get(vRes.Body(), "status").ToInt() != 200 {
+			return nil, errors.New("ocr error:" + utils.Json.Get(vRes.Body(), "msg").ToString())
 		}
-		param.vCodeRS = jsoniter.Get(vRes.Body(), "result").ToString()
+		param.vCodeRS = utils.Json.Get(vRes.Body(), "result").ToString()
 		log.Debugln("code: ", param.vCodeRS)
 	}
 	return param, nil
@@ -199,7 +198,7 @@ func (s *State) refreshSession(account *model.Account) error {
 			"accessToken": s.AccessToken,
 		}).
 		SetHeader("X-Request-ID", uuid.NewString()).
-		Get("https://api.cloud.189.cn/getSessionForPC.action")
+		Get(API_URL + "/getSessionForPC.action")
 	if err != nil {
 		return err
 	}
@@ -224,10 +223,8 @@ func (s *State) refreshSession(account *model.Account) error {
 	return nil
 }
 
-func (s *State) IsLogin() bool {
-	_, err := s.Request("GET", API_URL+"/getUserInfo.action", nil, func(r *resty.Request) {
-		r.SetQueryParams(clientSuffix())
-	}, nil)
+func (s *State) IsLogin(account *model.Account) bool {
+	_, err := s.Request(http.MethodGet, API_URL+"/getUserInfo.action", nil, func(r *resty.Request) { r.SetQueryParams(clientSuffix()) }, account)
 	return err == nil
 }
 
@@ -243,12 +240,12 @@ func (s *State) RefreshSession(account *model.Account) error {
 	return s.refreshSession(account)
 }
 
-func (s *State) Request(method string, fullUrl string, params url.Values, callback func(*resty.Request), account *model.Account) (*resty.Response, error) {
+func (s *State) Request(method string, fullUrl string, params Params, callback func(*resty.Request), account *model.Account) (*resty.Response, error) {
 	s.Lock()
 	dateOfGmt := getHttpDateStr()
 	sessionKey := s.SessionKey
 	sessionSecret := s.SessionSecret
-	if account != nil && isFamily(account) {
+	if isFamily(account) {
 		sessionKey = s.FamilySessionKey
 		sessionSecret = s.FamilySessionSecret
 	}
@@ -268,25 +265,12 @@ func (s *State) Request(method string, fullUrl string, params url.Values, callba
 	}
 	req.SetHeader("Signature", signatureOfHmac(sessionSecret, sessionKey, method, fullUrl, dateOfGmt, paramsData))
 
-	callback(req)
+	if callback != nil {
+		callback(req)
+	}
 	s.Unlock()
 
-	var err error
-	var res *resty.Response
-	switch method {
-	case "GET":
-		res, err = req.Get(fullUrl)
-	case "POST":
-		res, err = req.Post(fullUrl)
-	case "DELETE":
-		res, err = req.Delete(fullUrl)
-	case "PATCH":
-		res, err = req.Patch(fullUrl)
-	case "PUT":
-		res, err = req.Put(fullUrl)
-	default:
-		return nil, base.ErrNotSupport
-	}
+	res, err := req.Execute(method, fullUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -299,33 +283,36 @@ func (s *State) Request(method string, fullUrl string, params url.Values, callba
 	}
 	if erron.Code != "" && erron.Code != "SUCCESS" {
 		if erron.Msg == "" {
+			if erron.Message == "" {
+				return nil, fmt.Errorf(res.String())
+			}
 			return nil, fmt.Errorf(erron.Message)
 		}
 		return nil, fmt.Errorf(erron.Msg)
 	}
 	if erron.ErrorCode != "" {
-		return nil, fmt.Errorf(erron.ErrorMsg)
-	}
-
-	if account != nil {
-		switch jsoniter.Get(res.Body(), "res_code").ToInt64() {
-		case 11, 18:
-			if err := s.refreshSession(account); err != nil {
+		switch erron.ErrorCode {
+		case "InvalidSessionKey":
+			if err := s.RefreshSession(account); err != nil {
 				return nil, err
 			}
 			return s.Request(method, fullUrl, params, callback, account)
-		case 0:
-			if res.StatusCode() == http.StatusOK {
-				return res, nil
-			}
-			fallthrough
-		default:
-			return nil, fmt.Errorf(res.String())
 		}
+		return nil, fmt.Errorf(erron.ErrorMsg)
 	}
 
-	if jsoniter.Get(res.Body(), "res_code").ToInt64() != 0 {
-		return res, fmt.Errorf(jsoniter.Get(res.Body(), "res_message").ToString())
+	switch utils.Json.Get(res.Body(), "res_code").ToInt64() {
+	case 11, 18:
+		if err := s.RefreshSession(account); err != nil {
+			return nil, err
+		}
+		return s.Request(method, fullUrl, params, callback, account)
+	case 0:
+		if res.StatusCode() == http.StatusOK {
+			return res, nil
+		}
+		return nil, fmt.Errorf(res.String())
+	default:
+		return nil, fmt.Errorf(utils.Json.Get(res.Body(), "res_message").ToString())
 	}
-	return res, nil
 }

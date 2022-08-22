@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest]
-        go-version: [1.17]
+        go-version: [1.18]
     name: Build
     runs-on: ${{ matrix.platform }}
     steps:
@@ -30,7 +30,7 @@ jobs:
         with:
           path: alist
 
-      - name: Install upx
+      - name: Install dependencies
         run: |
           docker pull techknowlogick/xgo:latest
           go install src.techknowlogick.com/xgo@latest

@@ -21,7 +21,7 @@ English | [中文](./README_cn.md) | [Contributors](./CONTRIBUTORS.md) | [Contri
   - [x] Local storage
   - [x] [Aliyundrive](https://www.aliyundrive.com/)
   - [x] OneDrive / Sharepoint ([global](https://www.office.com/), [cn](https://portal.partner.microsoftonline.cn),de,us)
-  - [x] [189cloud](https://cloud.189.cn)
+  - [x] [189cloud](https://cloud.189.cn) (Personal, Family)
   - [x] [GoogleDrive](https://drive.google.com/)
   - [x] [123pan](https://www.123pan.com/)
   - [x] [Lanzou](https://pc.woozooo.com/)
@@ -30,7 +30,7 @@ English | [中文](./README_cn.md) | [Contributors](./CONTRIBUTORS.md) | [Contri
   - [x] [PikPak](https://www.mypikpak.com/)
   - [x] [ShandianPan](https://shandianpan.com/)
   - [x] [S3](https://aws.amazon.com/s3/)
-  - [x] WebDav
+  - [x] WebDav(Support OneDrive/SharePoint without API)
   - [x] Teambition([China](https://www.teambition.com/ ),[International](https://us.teambition.com/ ))
   - [x] [Mediatrack](https://www.mediatrack.cn/)
   - [x] [139yun](https://yun.139.com/) (Personal, Family)
@@ -38,6 +38,8 @@ English | [中文](./README_cn.md) | [Contributors](./CONTRIBUTORS.md) | [Contri
   - [x] [Baidu Disk](http://pan.baidu.com/)
   - [x] [Quark](https://pan.quark.cn)
   - [x] [XunleiCloud](https://pan.xunlei.com/)
+  - [x] SFTP
+  - [x] [Baidu.Photo](https://photo.baidu.com/)
 - [x] Easy to deploy and out-of-the-box
 - [x] File preview (PDF, markdown, code, plain text, ...)
 - [x] Image preview in gallery mode
@@ -69,10 +71,22 @@ Available at: <https://alist.nn.ci>.
 
 <https://alist-doc.nn.ci/en/>
 
+## Special sponsors
+- [找资源 - 阿里云盘资源搜索引擎](https://zhaoziyuan.la/)
+- [KinhDown 百度云盘不限速下载！永久免费！已稳定运行3年！非常可靠!](https://kinhdown.com/?Type=Tutorials)
+- [JetBrains: Essential tools for software developers and teams](https://www.jetbrains.com/)
+
 ## License
 
 The `AList` is open-source software licensed under the AGPL-3.0 license.
 
+## Disclaimer
+- This program is a free and open source project. It is designed to share files on the network disk, which is convenient for downloading and learning golang. Please abide by relevant laws and regulations when using it, and do not abuse it;
+- This program is implemented by calling the official sdk/interface, without destroying the official interface behavior;
+- This program only does 302 redirect/traffic forwarding, and does not intercept, store, or tamper with any user data;
+- Before using this program, you should understand and bear the corresponding risks, including but not limited to account ban, download speed limit, etc., which is none of this program's business;
+- If there is any infringement, please contact me by [email](mailto:i@nn.ci), and it will be dealt with in time.
+
 ---
 
-> [@Blog](https://www.nn.ci/) · [@GitHub](https://github.com/Xhofe) · [@TelegramGroup](https://t.me/alist_chat) · [@QQGroup](https://jq.qq.com/?_wv=1027&k=OVPJcv2b)
+> [@Blog](https://nn.ci/) · [@GitHub](https://github.com/Xhofe) · [@TelegramGroup](https://t.me/alist_chat) · [@QQGroup](https://jq.qq.com/?_wv=1027&k=YJJj2Gwb)

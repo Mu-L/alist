@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/Xhofe/alist/bootstrap"
 	"github.com/Xhofe/alist/conf"
 	_ "github.com/Xhofe/alist/drivers"
@@ -12,7 +13,6 @@ import (
 )
 
 func Init() bool {
-	//bootstrap.InitLog()
 	bootstrap.InitConf()
 	bootstrap.InitCron()
 	bootstrap.InitModel()
@@ -27,6 +27,7 @@ func Init() bool {
 	}
 	server.InitIndex()
 	bootstrap.InitSettings()
+	bootstrap.InitAuth()
 	bootstrap.InitAccounts()
 	bootstrap.InitCache()
 	return true

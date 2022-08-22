@@ -19,8 +19,9 @@ type DriverConfig struct {
 }
 
 type Args struct {
-	Path string
-	IP   string
+	Path   string
+	IP     string
+	Header http.Header
 }
 
 type Driver interface {
@@ -121,7 +122,7 @@ func GetDrivers() map[string][]Item {
 			{
 				Name:  "down_proxy_url",
 				Label: "down_proxy_url",
-				Type:  TypeString,
+				Type:  TypeText,
 			},
 			{
 				Name:   "extract_folder",
